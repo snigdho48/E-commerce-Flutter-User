@@ -1,11 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ecom_user_07/auth/auth_service.dart';
-import 'package:ecom_user_07/pages/product_details_page.dart';
 import 'package:ecom_user_07/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../customwidgets/main_drawer.dart';
+import '../customwidgets/product_grid_item_view.dart';
 import '../models/category_model.dart';
 import '../providers/order_provider.dart';
 import '../providers/product_provider.dart';
@@ -78,8 +75,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
                       ),
                       SizedBox(width: 15,),
                       SizedBox(
-                        width:MediaQuery.of(context).size.width*.18,
+                        width:MediaQuery.of(context).size.width*.17,
                         child: DropdownButtonFormField<String>(
+                          style: const TextStyle(fontSize: 15,),
                           isExpanded: true,
                           hint: const Text('Select Category'),
                           value: name,
@@ -106,8 +104,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
                       ),
                       SizedBox(width: 15,),
                       SizedBox(
-                        width:MediaQuery.of(context).size.width*.16,
+                        width:MediaQuery.of(context).size.width*.17,
                         child: DropdownButtonFormField<String>(
+                          style: const TextStyle(fontSize: 15),
                           isExpanded: true,
                           hint: const Text('Select Order'),
                           value: order,
@@ -140,24 +139,14 @@ class _ViewProductPageState extends State<ViewProductPage> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, childAspectRatio: 0.65),
                 itemCount: provider.productList.length,
                 itemBuilder: (context, index) {
                   final product = provider.productList[index];
-                  return ListTile(
-                    onTap: () => Navigator.pushNamed(
-                        context, ProductDetailsPage.routeName,
-                        arguments: product),
-                    leading: CachedNetworkImage(
-                      width: 50,
-                      imageUrl: product.thumbnailImageModel.imageDownloadUrl,
-                      placeholder: (context, url) =>
-                          const Center(child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                    ),
-                    title: Text(product.productName),
-                    subtitle: Text(product.category.categoryName),
-                    trailing: Text('Stock: ${product.stock}'),
+                  return ProductGridItemView(
+                    productModel: product,
                   );
                 },
               ),

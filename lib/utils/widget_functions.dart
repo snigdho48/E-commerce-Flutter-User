@@ -39,3 +39,30 @@ showSingleTextFieldInputDialog({
             ],
           ));
 }
+showCustomDialog({
+  required BuildContext context,
+  required String title,
+  required String content,
+  String positiveButtonText = 'OK',
+  required VoidCallback onPressed,
+}) {
+  showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CLOSE'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onPressed();
+            },
+            child: Text(positiveButtonText),
+          )
+        ],
+      ));
+}

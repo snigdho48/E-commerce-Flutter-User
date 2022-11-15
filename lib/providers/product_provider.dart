@@ -1,14 +1,15 @@
 import 'dart:io';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import '../auth/auth_service.dart';
 import '../db/db_helper.dart';
 import '../models/category_model.dart';
 import '../models/image_model.dart';
 import '../models/product_model.dart';
 import '../models/purchase_model.dart';
+import '../models/rating_model.dart';
+import '../models/user_model.dart';
 import '../utils/constants.dart';
 
 class ProductProvider extends ChangeNotifier {
@@ -47,6 +48,30 @@ class ProductProvider extends ChangeNotifier {
           (index) => ProductModel.fromMap(snapshot.docs[index].data()));
       notifyListeners();
     });
+  }
+  Future<void> addRating(
+      String productId, double rating, UserModel userModel) async {
+    final ratingModel = RatingModel(
+      ratingId: AuthService.currentUser!.uid,
+      userModel: userModel,
+      productId: productId,
+      rating: rating,
+    );
+    await DbHelper.addRating(ratingModel);
+    final snapshot = await DbHelper.getRatingsByProduct(productId);
+    final ratingModelList = List.generate(snapshot.docs.length,
+            (index) => RatingModel.fromMap(snapshot.docs[index].data()));
+    double totalRating = 0.0;
+    for (var model in ratingModelList) {
+      totalRating += model.rating;
+    }
+    final avgRating = totalRating / ratingModelList.length;
+    return updateProductField(
+        ratingModel.productId, productFieldAvgRating, avgRating);
+  }
+
+  Future<void> updateProductField(String proId, String field, dynamic value) {
+    return DbHelper.updateProductField(proId, {field: value});
   }
   productFilterByName(String search, bool? hasorder,) {
     if(search.isNotEmpty){

@@ -44,7 +44,7 @@ class UserProfilePage extends StatelessWidget {
                             if((value.length==11 && int.tryParse(value)!=null)
                                 || (value.length==14 && int.tryParse(value..substring(1,14))!=null))
                             {
-                              await Navigator.pushNamed(
+                              Navigator.pushNamed(
                                   context, OtpVerificationPage.routeName,
                                   arguments: value.startsWith('+',0)?value:"+88$value").then((value)
                               {

@@ -158,10 +158,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   }
   Future<void> _verify() async {
     try{
-      // User user=FirebaseAuth.instance.currentUser!;
-      PhoneAuthCredential phonecredential =
+      User user=FirebaseAuth.instance.currentUser!;
+      PhoneAuthCredential credential =
       PhoneAuthProvider.credential(verificationId: vid, smsCode: incomingOtp);
-      FirebaseAuth.instance.signInWithCredential(phonecredential).then((value)
+      FirebaseAuth.instance.signInWithCredential(credential).then((value)
       {
         FirebaseAuth.instance.currentUser!.delete();
         final AuthCredential credential=AuthCredential(
@@ -170,7 +170,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             signInMethod: AuthService.oAuthCredential!.signInMethod,
 
         );
-        FirebaseAuth.instance.signInWithCredential(credential);
+        FirebaseAuth.instance.signInWithCredential(credential).then((value) async =>
+        await Future.delayed(Duration(seconds: 2))
+      );
         print('success');
         // if(user.runtimeType== 'User'){
         //    FirebaseAuth.instance.signInWithCredential(user.cr);
@@ -178,7 +180,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         // FirebaseAuth.instance.currentUser!=user;
         print(FirebaseAuth.instance.currentUser!.displayName);
         // Provider.of<UserProvider>(context,listen: false).updateUserProfileField(userFieldPhone, phone);
-        Navigator.pop(context,{'phone':phone,'isvarified':true});
+        Navigator.pop(context);
 
       }
       );

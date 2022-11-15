@@ -5,6 +5,7 @@ import '../models/category_model.dart';
 import '../models/order_constant_model.dart';
 import '../models/product_model.dart';
 import '../models/purchase_model.dart';
+import '../models/rating_model.dart';
 
 class DbHelper {
   static const String collectionAdmin = 'Admins';
@@ -44,6 +45,18 @@ class DbHelper {
     wb.update(catDoc, {categoryFieldProductCount: updatedCount});
     return wb.commit();
   }
+  static Future<void> addRating(RatingModel ratingModel) {
+    final ratingDoc = _db
+        .collection(collectionProduct)
+        .doc(ratingModel.productId)
+        .collection(collectionRating)
+        .doc(ratingModel.userModel.userId);
+    return ratingDoc.set(ratingModel.toMap());
+  }
+
+  static Future<QuerySnapshot<Map<String, dynamic>>> getRatingsByProduct(
+      String proId) =>
+      _db.collection(collectionProduct).doc(proId).collection(collectionRating).get();
 
   static Stream<DocumentSnapshot<Map<String, dynamic>>> getUserInfo(
           String uid) =>
@@ -112,5 +125,9 @@ class DbHelper {
         .collection(collectionUtils)
         .doc(documentOrderConstants)
         .update(model.toMap());
+  }
+  static Future<void> updateProductField(
+      String proId, Map<String, dynamic> map) {
+    return _db.collection(collectionProduct).doc(proId).update(map);
   }
 }

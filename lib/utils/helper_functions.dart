@@ -39,5 +39,9 @@ try{
 }catch(error){
   EasyLoading.dismiss();
 }
-
 }
+String getPriceAfterDiscount(num price, num discount) {
+  final discountAmount = (price * discount) / 100;
+  return (price - discountAmount).toStringAsFixed(0);
+}
+

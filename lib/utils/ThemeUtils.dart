@@ -19,8 +19,10 @@ class ThemeServices{
      _saveTheme(bool isDarkMode)=>_box.write(_key, isDarkMode);
      bool loadTheme()=> _box.read(_key)??false;
      ThemeMode get theme=> loadTheme()?ThemeMode.dark:ThemeMode.light;
+
      void swtichTheme(){
        Get.changeThemeMode(loadTheme()?ThemeMode.light:ThemeMode.dark);
        _saveTheme(!loadTheme());
      }
 }
+

@@ -15,7 +15,9 @@ class MainDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     return Drawer(
-      child: ListView(
+      child:
+
+      ListView(
         children: [
           Container(
             height: 150,
@@ -23,6 +25,7 @@ class MainDrawer extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children:  [
+                if (!AuthService.currentUser!.isAnonymous)
                 Card(
                   elevation: 5,
                   child:userProvider.userModel!.imageUrl == null
@@ -44,6 +47,7 @@ class MainDrawer extends StatelessWidget {
                 const SizedBox(
                   width: 15,
                 ),
+                if (!AuthService.currentUser!.isAnonymous)
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,6 +68,7 @@ class MainDrawer extends StatelessWidget {
               ],
             ),
           ),
+          if (!AuthService.currentUser!.isAnonymous)
           ListTile(
             onTap: () {
               Navigator.pop(context);
@@ -72,11 +77,13 @@ class MainDrawer extends StatelessWidget {
             leading: const Icon(Icons.person),
             title: const Text('My Profile'),
           ),
+          if (!AuthService.currentUser!.isAnonymous)
           ListTile(
             onTap: () {},
             leading: const Icon(Icons.shopping_cart),
             title: const Text('My Cart'),
           ),
+          if (!AuthService.currentUser!.isAnonymous)
           ListTile(
             onTap: () {},
             leading: const Icon(Icons.monetization_on),
