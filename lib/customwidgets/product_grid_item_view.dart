@@ -36,26 +36,27 @@ class ProductGridItemView extends StatelessWidget {
                   padding: const EdgeInsets.all(4),
                   child: Text(
                     productModel.productName,
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
                 if (productModel.productDiscount > 0)
                   Padding(
                     padding: const EdgeInsets.all(4),
-                    child: RichText(
-                      text: TextSpan(
-                          text:
-                              '$currencySymbol${getPriceAfterDiscount(productModel.salePrice, productModel.productDiscount)}',
-                          style: const TextStyle(
-                              fontSize: 20, color: Colors.black),
-                          children: [
-                            TextSpan(
-                                text:
-                                    ' $currencySymbol${productModel.salePrice}',
-                                style: const TextStyle(
-                                    fontSize: 15,
-                                    decoration: TextDecoration.lineThrough))
-                          ]),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                            '$currencySymbol${getPriceAfterDiscount(productModel.salePrice, productModel.productDiscount)}',
+                            style: const TextStyle(
+                                fontSize: 20,
+                            )),
+                        Text(
+                            ' $currencySymbol${productModel.salePrice}',
+                            style: const TextStyle(
+                                fontSize: 15,
+                                decoration: TextDecoration.lineThrough))
+
+                      ],
                     ),
                   ),
                 if (productModel.productDiscount == 0)
@@ -63,7 +64,7 @@ class ProductGridItemView extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     child: Text(
                       '$currencySymbol${productModel.salePrice}',
-                      style: const TextStyle(fontSize: 20, color: Colors.black),
+                      style: TextStyle(fontSize: 20, color:(ThemeServices().loadTheme()? Colors.black:Colors.white)),
                     ),
                   ),
                 Padding(
@@ -79,13 +80,12 @@ class ProductGridItemView extends StatelessWidget {
                         itemCount: 5,
                         ignoreGestures: true,
                         itemSize: 20,
-                        itemPadding: EdgeInsets.symmetric(horizontal: 0.0),
-                        itemBuilder: (context, _) => Icon(
+                        itemPadding: const EdgeInsets.symmetric(horizontal: 0.0),
+                        itemBuilder: (context, _) => const Icon(
                           Icons.star,
                           color: Colors.amber,
                         ),
                         onRatingUpdate: (rating) {
-                          print(rating);
                         },
                       ),
                       const SizedBox(width: 5,),
@@ -108,7 +108,7 @@ class ProductGridItemView extends StatelessWidget {
                   color: Colors.black54,
                   child: Text(
                     '${productModel.productDiscount}% OFF',
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25, color:(ThemeServices().loadTheme()? Colors.black:Colors.white)),
                   ),
                 ),
               ),

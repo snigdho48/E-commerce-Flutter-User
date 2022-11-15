@@ -73,7 +73,7 @@ class _ViewProductPageState extends State<ViewProductPage> {
                           },
                         ),
                       ),
-                      SizedBox(width: 15,),
+                      const SizedBox(width: 15,),
                       SizedBox(
                         width:MediaQuery.of(context).size.width*.17,
                         child: DropdownButtonFormField<String>(
@@ -102,7 +102,7 @@ class _ViewProductPageState extends State<ViewProductPage> {
                           },
                         ),
                       ),
-                      SizedBox(width: 15,),
+                      const SizedBox(width: 15,),
                       SizedBox(
                         width:MediaQuery.of(context).size.width*.17,
                         child: DropdownButtonFormField<String>(
