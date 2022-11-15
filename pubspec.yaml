@@ -48,6 +48,7 @@ dependencies:
   connectivity_plus:
   pin_code_fields:
   google_sign_in:
+  flutter_rating_bar:
     #new
   country_state_city_pro:
   location_picker_flutter_map:
