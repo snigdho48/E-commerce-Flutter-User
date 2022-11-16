@@ -17,7 +17,7 @@ import '../utils/helper_functions.dart';
 
 class ProductProvider extends ChangeNotifier {
   List<CategoryModel> categoryList = [];
-  List<ProductModel> productList = [];
+  static List<ProductModel> productList = [];
   List<ProductModel> filterproductList = [];
   List<PurchaseModel> purchaseList = [];
   List <String> list1=[];
@@ -245,21 +245,8 @@ class ProductProvider extends ChangeNotifier {
     return DbHelper.addComment(commentModel);
   }
 
-  getProductInfoUpdate(CartModel cartModel) {
-    CartModel model= cartModel;
-    productList.forEach((element) async {
-      if(element.productId==cartModel.productId){
-        num quantity=cartModel.quantity;
-        if(quantity>element.stock){
-          quantity=element.stock;
-        }
-       model=CartModel(productId: element.productId!, productName: element.productName, productImageUrl: element.thumbnailImageModel.imageDownloadUrl, salePrice: priceAfterDiscount(element.salePrice,element.productDiscount),quantity: quantity);
-       if(model.quantity!= cartModel.quantity || model.salePrice!=cartModel.salePrice){
-         await DbHelper.addToCart(AuthService.currentUser!.uid, cartModel);
-       }
-      }
-    });
-    return model;
-  }
+
+
+
 
 }

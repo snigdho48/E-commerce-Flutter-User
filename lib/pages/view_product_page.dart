@@ -38,7 +38,6 @@ class _ViewProductPageState extends State<ViewProductPage> {
     Provider.of<OrderProvider>(context, listen: false).getOrderConstants();
     Provider.of<UserProvider>(context,listen: false).getUserInfo();
     Provider.of<CartProvider>(context,listen: false).getAllCartItemsByUser();
-
     super.didChangeDependencies();
   }
 
@@ -149,9 +148,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2, childAspectRatio: 0.65),
-                itemCount: provider.productList.length,
+                itemCount: ProductProvider.productList.length,
                 itemBuilder: (context, index) {
-                  final product = provider.productList[index];
+                  final product = ProductProvider.productList[index];
                   return ProductGridItemView(
                     productModel: product,
                   );

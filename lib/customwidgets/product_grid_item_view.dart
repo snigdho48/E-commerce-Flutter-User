@@ -105,10 +105,10 @@ class ProductGridItemView extends StatelessWidget {
                   /*transform: Matrix4.identity()..rotateZ(1),
                   transformAlignment: Alignment.center,*/
                   height: 60,
-                  color: (ThemeServices().loadTheme()? Colors.black54:Colors.white54),
+                  color: (ThemeServices().loadTheme()? Colors.white54:Colors.black54),
                   child: Text(
                     '${productModel.productDiscount}% OFF',
-                    style: TextStyle(fontSize: 25, color:(ThemeServices().loadTheme()? Colors.white:Colors.black)),
+                    style: TextStyle(fontSize: 25, color:(ThemeServices().loadTheme()? Colors.black:Colors.white)),
                   ),
                 ),
               ),

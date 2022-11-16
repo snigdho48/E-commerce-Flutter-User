@@ -4,7 +4,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:provider/provider.dart';
 
 Future<bool> isConnectedToInternet() async {
   var result = await (Connectivity().checkConnectivity());
