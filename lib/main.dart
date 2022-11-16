@@ -1,8 +1,10 @@
+import 'package:ecom_user_07/pages/cart_page.dart';
 import 'package:ecom_user_07/pages/launcher_page.dart';
 import 'package:ecom_user_07/pages/login_page.dart';
 import 'package:ecom_user_07/pages/order_page.dart';
 import 'package:ecom_user_07/pages/otp_verification_page.dart';
 import 'package:ecom_user_07/pages/product_details_page.dart';
+import 'package:ecom_user_07/providers/cart_provider.dart';
 import 'package:ecom_user_07/providers/product_provider.dart';
 import 'package:ecom_user_07/providers/user_provider.dart';
 import 'package:ecom_user_07/utils/ThemeUtils.dart';
@@ -24,6 +26,8 @@ void main() async {
     ChangeNotifierProvider(create: (_) => ProductProvider()),
     ChangeNotifierProvider(create: (_) => OrderProvider()),
     ChangeNotifierProvider(create: (_) => UserProvider()),
+    ChangeNotifierProvider(create: (_) => CartProvider()),
+
   ], child: const MyApp()));
 }
 
@@ -49,6 +53,8 @@ class MyApp extends StatelessWidget {
         OrderPage.routeName: (_) => const OrderPage(),
         UserProfilePage.routeName: (_) => const UserProfilePage(),
         OtpVerificationPage.routeName: (_) => const OtpVerificationPage(),
+        CartPage.routeName: (_) => const CartPage(),
+
       },
     );
   }
