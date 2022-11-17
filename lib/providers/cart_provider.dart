@@ -13,7 +13,6 @@ class CartProvider extends ChangeNotifier {
         .listen((snapshot) {
       cartList = List.generate(snapshot.docs.length,
           (index) => CartModel.fromMap(snapshot.docs[index].data()));
-      print(cartList);
       notifyListeners();
     });
   }
@@ -34,43 +33,65 @@ class CartProvider extends ChangeNotifier {
   }
 
   bool isProductInCart(String productId) {
-    final car= List.generate(cartList.length, (index) => cartList[index].productId);
-    print(car);
+    final car =
+        List.generate(cartList.length, (index) => cartList[index].productId);
     return car.contains(productId);
   }
 
   Future<void> removeFromCart(String pid) {
     return DbHelper.removeFromCart(AuthService.currentUser!.uid, pid);
   }
+
   getProductInfoUpdate(CartModel cartModel) {
-    CartModel model= cartModel;
-    ProductProvider.productList.forEach((element)  async {
-      if(element.productId==cartModel.productId){
-        num quantity=cartModel.quantity;
-        if(quantity>element.stock){
-          quantity=element.stock;
+    CartModel model = cartModel;
+    ProductProvider.productList.forEach((element) async {
+      if (element.productId == cartModel.productId) {
+        num quantity = cartModel.quantity;
+        if (quantity > element.stock) {
+          quantity = element.stock;
         }
-        if(quantity<0|| element.available==false){
-          quantity=0;
+        if (element.available == false) {
+          quantity = 0;
         }
-        model=CartModel(productId: element.productId!, productName: element.productName, productImageUrl: element.thumbnailImageModel.imageDownloadUrl, salePrice: num.parse(getPriceAfterDiscount(element.salePrice,element.productDiscount)),quantity: quantity);
+        model = CartModel(
+            productId: element.productId!,
+            productName: element.productName,
+            productImageUrl: element.thumbnailImageModel.imageDownloadUrl,
+            salePrice: num.parse(getPriceAfterDiscount(
+                element.salePrice, element.productDiscount)),
+            quantity: quantity);
         // if(model.quantity!= cartModel.quantity || model.salePrice!=cartModel.salePrice){
         //   await DbHelper.addToCart(AuthService.currentUser!.uid, cartModel);
         // }
-        final index=cartList.indexWhere((element) => element.productId==cartModel.productId);
-        print(index);
-        cartList.elementAt(index).quantity=model.quantity;
-        cartList.elementAt(index).salePrice=model.salePrice;
+        final index = cartList
+            .indexWhere((element) => element.productId == cartModel.productId);
+        cartList.elementAt(index).quantity = model.quantity;
+        cartList.elementAt(index).salePrice = model.salePrice;
       }
     });
     return model;
   }
+
   updateCart(CartModel cartModel, bool value) {
-
-    value?cartModel.quantity+=1:cartModel.quantity-=1;
-
+    value ? cartModel.quantity += 1 : cartModel.quantity -= 1;
+    notifyListeners();
     return getProductInfoUpdate(cartModel);
+  }
 
+  num priceWithQuantity(CartModel cartModel) =>
+      cartModel.quantity * cartModel.salePrice;
 
+  num getTotalPrice() {
+    num total = 0;
+    for (final cartModel in cartList) {
+      total += priceWithQuantity(cartModel);
+    }
+    print(total);
+    return total;
+
+  }
+
+  Future<void> clearCart() {
+    return DbHelper.clearCart(AuthService.currentUser!.uid, cartList);
   }
 }

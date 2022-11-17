@@ -33,6 +33,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   double userRating = 0.0;
   final txtController = TextEditingController();
   final focusNode = FocusNode();
+  late bool isfavourite;
 
   @override
   void didChangeDependencies() {
@@ -41,6 +42,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     userProvider = Provider.of<UserProvider>(context, listen: false);
     productModel = ModalRoute.of(context)!.settings.arguments as ProductModel;
     photoUrl = productModel.thumbnailImageModel.imageDownloadUrl;
+    productProvider.getFavouriteByUser();
+    isfavourite=productProvider.isProductInfavourite(productModel.productId!);
+
     super.didChangeDependencies();
   }
 
@@ -111,9 +115,18 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             children: [
               Expanded(
                 child: TextButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.favorite),
-                  label: const Text('ADD TO FAVORITE'),
+                  onPressed: () {
+                    if(!isfavourite){
+                      productProvider.addfavourite(productModel.productId!);
+                      showMsg(context, 'Add to Favorite');
+
+                    }else{
+                      productProvider.removefavourite(productModel.productId!);
+                      showMsg(context, 'Removed from Favorite');
+                    }
+                  },
+                  icon:  Icon(isfavourite?Icons.favorite:Icons.favorite_border_outlined),
+                  label:  Text(isfavourite?'REMOVE FROM FAVORITE':'ADD TO FAVORITE'),
                 ),
               ),
               Expanded(

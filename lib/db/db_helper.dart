@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecom_user_07/auth/auth_service.dart';
 import 'package:ecom_user_07/models/user_model.dart';
 
 import '../models/cart_model.dart';
 import '../models/category_model.dart';
 import '../models/comment_model.dart';
+import '../models/favourite_model.dart';
 import '../models/order_constant_model.dart';
 import '../models/product_model.dart';
 import '../models/purchase_model.dart';
@@ -182,4 +184,55 @@ class DbHelper {
         .doc(pid)
         .delete();
   }
+  static Future<void> updateCartQuantity(String uid, CartModel cartModel) {
+    return _db
+        .collection(collectionUser)
+        .doc(uid)
+        .collection(collectionCart)
+        .doc(cartModel.productId)
+        .set(cartModel.toMap());
+  }
+
+  static Future<void> clearCart(String uid, List<CartModel> cartList) {
+    final wb = _db.batch();
+    for (final cartModel in cartList) {
+      final doc = _db
+          .collection(collectionUser)
+          .doc(uid)
+          .collection(collectionCart)
+          .doc(cartModel.productId);
+      wb.delete(doc);
+    }
+    return wb.commit();
+  }
+  //favorite
+
+   static Stream<QuerySnapshot<Map<String, dynamic>>> getFavouriteByUser(
+      String uid) {
+    final info = _db
+        .collection(collectionUser)
+        .doc(uid)
+        .collection(collectionFavourite)
+        .snapshots();
+    return info;
+  }
+
+  static Future<void> addfavourite(FavouriteModel favouriteModel) {
+    return _db
+        .collection(collectionUser)
+        .doc(AuthService.currentUser!.uid)
+        .collection(collectionFavourite)
+        .doc(favouriteModel.productId)
+        .set(favouriteModel.toMap());
+  }
+
+  static Future<void> removefavourite(String uid, String pid) {
+    return _db
+        .collection(collectionUser)
+        .doc(uid)
+        .collection(collectionFavourite)
+        .doc(pid)
+        .delete();
+  }
+
 }

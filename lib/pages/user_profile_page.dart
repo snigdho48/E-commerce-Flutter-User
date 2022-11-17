@@ -170,7 +170,12 @@ class UserProfilePage extends StatelessWidget {
                 showCityInputDialog(context: context,
                     title: 'Select City',
                     onSubmit: (value ) {
-                      userProvider.updateUserProfileField('$userFieldAddressModel.$addressFieldCity', value);
+                  if(value.split(',').length==3){
+                    userProvider.updateUserProfileField('$userFieldAddressModel.$addressFieldCity', value.split(',')[2]);
+
+                  }else{
+                    userProvider.updateUserProfileField('$userFieldAddressModel.$addressFieldCity', value);
+                  }
                     });
               },
               icon: const Icon(Icons.edit),
