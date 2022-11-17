@@ -1,6 +1,8 @@
+import 'package:ecom_user_07/providers/cart_provider.dart';
 import 'package:ecom_user_07/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../customwidgets/cart_bubble_view.dart';
 import '../customwidgets/main_drawer.dart';
 import '../customwidgets/product_grid_item_view.dart';
 import '../models/category_model.dart';
@@ -35,7 +37,7 @@ class _ViewProductPageState extends State<ViewProductPage> {
     Provider.of<ProductProvider>(context, listen: false).getAllPurchases();
     Provider.of<OrderProvider>(context, listen: false).getOrderConstants();
     Provider.of<UserProvider>(context,listen: false).getUserInfo();
-
+    Provider.of<CartProvider>(context,listen: false).getAllCartItemsByUser();
     super.didChangeDependencies();
   }
 
@@ -45,6 +47,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
       drawer: const MainDrawer(),
       appBar: AppBar(
         title: const Text('All Product'),
+        actions: const [
+          CartBubbleView(),
+        ],
       ),
       body: Consumer<ProductProvider>(
         builder: (context, provider, child) => Column(
@@ -73,11 +78,11 @@ class _ViewProductPageState extends State<ViewProductPage> {
                           },
                         ),
                       ),
-                      SizedBox(width: 15,),
+                      const SizedBox(width: 15,),
                       SizedBox(
-                        width:MediaQuery.of(context).size.width*.17,
+                        width:MediaQuery.of(context).size.width*.18,
                         child: DropdownButtonFormField<String>(
-                          style: const TextStyle(fontSize: 15,),
+                          // style: const TextStyle(fontSize: 15,),
                           isExpanded: true,
                           hint: const Text('Select Category'),
                           value: name,
@@ -94,6 +99,7 @@ class _ViewProductPageState extends State<ViewProductPage> {
                                          child: Text(choice[index])
                                   )
                           ),
+
                           onChanged: (value) {
                             name=value!;
                             if(name== 'All') {
@@ -102,11 +108,11 @@ class _ViewProductPageState extends State<ViewProductPage> {
                           },
                         ),
                       ),
-                      SizedBox(width: 15,),
+                      const SizedBox(width: 10,),
                       SizedBox(
                         width:MediaQuery.of(context).size.width*.17,
                         child: DropdownButtonFormField<String>(
-                          style: const TextStyle(fontSize: 15),
+                          // style: Theme.of(context).textTheme.displaySmall,
                           isExpanded: true,
                           hint: const Text('Select Order'),
                           value: order,
@@ -142,9 +148,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2, childAspectRatio: 0.65),
-                itemCount: provider.productList.length,
+                itemCount: ProductProvider.productList.length,
                 itemBuilder: (context, index) {
-                  final product = provider.productList[index];
+                  final product = ProductProvider.productList[index];
                   return ProductGridItemView(
                     productModel: product,
                   );

@@ -4,12 +4,17 @@ import 'package:get_storage/get_storage.dart';
 
 class ThemeUtils{
   static final light= ThemeData(
-  primarySwatch: Colors.blue,
-  brightness: Brightness.light,
+    primarySwatch: Colors.blue,
+    brightness: Brightness.light,
+    hintColor: Colors.black,
+
+    // next line is important!
   );
   static final dark= ThemeData(
-  primarySwatch: Colors.red,
-  brightness: Brightness.dark,
+      primarySwatch: Colors.red,
+      brightness: Brightness.dark,
+      hintColor: Colors.white,
+
 
   );
 }
@@ -24,5 +29,7 @@ class ThemeServices{
        Get.changeThemeMode(loadTheme()?ThemeMode.light:ThemeMode.dark);
        _saveTheme(!loadTheme());
      }
+     bool gettheme()=> _saveTheme(loadTheme());
+
 }
 

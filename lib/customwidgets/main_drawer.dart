@@ -5,6 +5,7 @@ import 'package:ecom_user_07/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../pages/cart_page.dart';
 import '../pages/user_profile_page.dart';
 import '../utils/ThemeUtils.dart';
 
@@ -79,7 +80,9 @@ class MainDrawer extends StatelessWidget {
           ),
           if (!AuthService.currentUser!.isAnonymous)
           ListTile(
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, CartPage.routeName);
+            },
             leading: const Icon(Icons.shopping_cart),
             title: const Text('My Cart'),
           ),
