@@ -256,7 +256,7 @@ class ProductProvider extends ChangeNotifier {
   }
 
 // favourite
-  getFavouriteByUser() {
+  void getFavouriteByUser() {
     DbHelper.getFavouriteByUser(AuthService.currentUser!.uid)
         .listen((snapshot) {
       favouriteList = List.generate(snapshot.docs.length,

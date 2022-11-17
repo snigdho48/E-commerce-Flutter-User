@@ -33,7 +33,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   double userRating = 0.0;
   final txtController = TextEditingController();
   final focusNode = FocusNode();
-  late bool isfavourite;
 
   @override
   void didChangeDependencies() {
@@ -43,7 +42,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     productModel = ModalRoute.of(context)!.settings.arguments as ProductModel;
     photoUrl = productModel.thumbnailImageModel.imageDownloadUrl;
     productProvider.getFavouriteByUser();
-    isfavourite=productProvider.isProductInfavourite(productModel.productId!);
 
     super.didChangeDependencies();
   }
@@ -113,22 +111,30 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ),
           Row(
             children: [
-              Expanded(
-                child: TextButton.icon(
-                  onPressed: () {
-                    if(!isfavourite){
-                      productProvider.addfavourite(productModel.productId!);
-                      showMsg(context, 'Add to Favorite');
-
-                    }else{
-                      productProvider.removefavourite(productModel.productId!);
-                      showMsg(context, 'Removed from Favorite');
-                    }
-                  },
-                  icon:  Icon(isfavourite?Icons.favorite:Icons.favorite_border_outlined),
-                  label:  Text(isfavourite?'REMOVE FROM FAVORITE':'ADD TO FAVORITE'),
-                ),
-              ),
+              Consumer<ProductProvider>(
+              builder: (context, provider, child) {
+               final isfavorit =
+                      provider.isProductInfavourite(productModel.productId!);
+                 return Expanded(
+                  child: TextButton.icon(
+                    onPressed: () async {
+                      if (isfavorit==false) {
+                        await productProvider.addfavourite(productModel.productId!);
+                        showMsg(context, 'Add to Favorite');
+                      } else {
+                        productProvider.removefavourite(productModel.productId!);
+                        showMsg(context, 'Removed from Favorite');
+                      }
+                    },
+                    icon: Icon(isfavorit
+                        ? Icons.favorite
+                        : Icons.favorite_border_outlined),
+                    label: Text(isfavorit
+                        ? 'REMOVE FROM FAVORITE'
+                        : 'ADD TO FAVORITE'),
+                  ),
+                );
+              }),
               Expanded(
                 child: Consumer<CartProvider>(
                   builder: (context, provider, child) {
@@ -137,7 +143,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     return TextButton.icon(
                       onPressed: () async {
                         final isInCart =
-                        provider.isProductInCart(productModel.productId!);
+                            provider.isProductInCart(productModel.productId!);
                         EasyLoading.show(status: 'Please wait');
                         if (isInCart) {
                           //remove
@@ -327,9 +333,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                           height: 100,
                                           fit: BoxFit.fill,
                                           imageUrl: comment.userModel.imageUrl!,
-                                          placeholder: (context, url) => const Center(
-                                              child:
-                                                  CircularProgressIndicator()),
+                                          placeholder: (context, url) =>
+                                              const Center(
+                                                  child:
+                                                      CircularProgressIndicator()),
                                           errorWidget: (context, url, error) =>
                                               Icon(Icons.error),
                                         ),
