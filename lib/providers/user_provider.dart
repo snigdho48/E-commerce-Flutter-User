@@ -42,4 +42,6 @@ class UserProvider extends ChangeNotifier {
   Future<void> deleteImage(String url) {
     return FirebaseStorage.instance.refFromURL(url).delete();
   }
+
+
 }

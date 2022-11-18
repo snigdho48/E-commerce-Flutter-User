@@ -1,4 +1,5 @@
 import 'package:ecom_user_07/pages/cart_page.dart';
+import 'package:ecom_user_07/pages/checkout_page.dart';
 import 'package:ecom_user_07/pages/launcher_page.dart';
 import 'package:ecom_user_07/pages/login_page.dart';
 import 'package:ecom_user_07/pages/order_page.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
         UserProfilePage.routeName: (_) => const UserProfilePage(),
         OtpVerificationPage.routeName: (_) => const OtpVerificationPage(),
         CartPage.routeName: (_) => const CartPage(),
+        CheckoutPage.routeName: (_) => const CheckoutPage(),
 
       },
     );

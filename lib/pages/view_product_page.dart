@@ -1,3 +1,4 @@
+import 'package:ecom_user_07/models/favourite_model.dart';
 import 'package:ecom_user_07/providers/cart_provider.dart';
 import 'package:ecom_user_07/providers/user_provider.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
     Provider.of<OrderProvider>(context, listen: false).getOrderConstants();
     Provider.of<UserProvider>(context,listen: false).getUserInfo();
     Provider.of<CartProvider>(context,listen: false).getAllCartItemsByUser();
+    Provider.of<CartProvider>(context,listen: false).getTotalPrice();
+    Provider.of<ProductProvider>(context,listen: false).getFavouriteByUser();
+
     super.didChangeDependencies();
   }
 

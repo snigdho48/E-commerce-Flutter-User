@@ -7,6 +7,7 @@ import '../auth/auth_service.dart';
 import '../db/db_helper.dart';
 import '../models/category_model.dart';
 import '../models/comment_model.dart';
+import '../models/favourite_model.dart';
 import '../models/image_model.dart';
 import '../models/product_model.dart';
 import '../models/purchase_model.dart';
@@ -17,12 +18,13 @@ import '../utils/helper_functions.dart';
 
 class ProductProvider extends ChangeNotifier {
   List<CategoryModel> categoryList = [];
+  List<FavouriteModel> favouriteList = [];
   static List<ProductModel> productList = [];
   List<ProductModel> filterproductList = [];
   List<PurchaseModel> purchaseList = [];
-  List <String> list1=[];
-  List <num> list2=[];
-  String Order='None';
+  List <String> list1 = [];
+  List <num> list2 = [];
+  String Order = 'None';
 
   Future<void> addCategory(String category) {
     final categoryModel = CategoryModel(categoryName: category);
@@ -32,7 +34,7 @@ class ProductProvider extends ChangeNotifier {
   getAllProducts() {
     DbHelper.getAllProducts().listen((snapshot) {
       productList = List.generate(snapshot.docs.length,
-          (index) => ProductModel.fromMap(snapshot.docs[index].data()));
+              (index) => ProductModel.fromMap(snapshot.docs[index].data()));
       notifyListeners();
     });
   }
@@ -40,7 +42,7 @@ class ProductProvider extends ChangeNotifier {
   getAllPurchases() {
     DbHelper.getAllPurchases().listen((snapshot) {
       purchaseList = List.generate(snapshot.docs.length,
-          (index) => PurchaseModel.fromMap(snapshot.docs[index].data()));
+              (index) => PurchaseModel.fromMap(snapshot.docs[index].data()));
       notifyListeners();
     });
   }
@@ -48,12 +50,13 @@ class ProductProvider extends ChangeNotifier {
   getAllProductsByCategory(String categoryName) {
     DbHelper.getAllProductsByCategory(categoryName).listen((snapshot) {
       productList = List.generate(snapshot.docs.length,
-          (index) => ProductModel.fromMap(snapshot.docs[index].data()));
+              (index) => ProductModel.fromMap(snapshot.docs[index].data()));
       notifyListeners();
     });
   }
-  Future<void> addRating(
-      String productId, double rating, UserModel userModel) async {
+
+  Future<void> addRating(String productId, double rating,
+      UserModel userModel) async {
     final ratingModel = RatingModel(
       ratingId: AuthService.currentUser!.uid,
       userModel: userModel,
@@ -76,96 +79,100 @@ class ProductProvider extends ChangeNotifier {
   Future<void> updateProductField(String proId, String field, dynamic value) {
     return DbHelper.updateProductField(proId, {field: value});
   }
+
   productFilterByName(String search, bool? hasorder,) {
-    if(search.isNotEmpty){
-      filterproductList=productList;
-      productList=[];
+    if (search.isNotEmpty) {
+      filterproductList = productList;
+      productList = [];
       filterproductList.forEach((element) {
-        if(element.category.categoryName.toLowerCase().contains(search)){
+        if (element.category.categoryName.toLowerCase().contains(search)) {
           productList.add(element);
         }
-        });
-    }else{
+      });
+    } else {
       getAllProducts();
     }
-    hasorder??shorted(Order);
+    hasorder ?? shorted(Order);
 
     notifyListeners();
   }
 
   productFilterByCategory(String search, bool? hasorder) {
-    if(search.isNotEmpty){
-      filterproductList=productList;
-      productList=[];
+    if (search.isNotEmpty) {
+      filterproductList = productList;
+      productList = [];
       filterproductList.forEach((element) {
-        if(element.category.categoryName.toLowerCase().contains(search)){
+        if (element.category.categoryName.toLowerCase().contains(search)) {
           productList.add(element);
         }
       });
-    }else{
+    } else {
       getAllProducts();
     }
-    hasorder??shorted(Order);
+    hasorder ?? shorted(Order);
 
     notifyListeners();
   }
 
-  void filter(String search,String name,{bool? hasorder}){
-    if(name=='Product'){productFilterByName(search,hasorder);}
-    else if(name=='Category'){productFilterByCategory(search,hasorder);}
-
-
-  }
-  void sortlisByName(List list){
-
-    productList=[];
-    list.forEach((key) {
-      filterproductList.forEach((product) {
-        if(product.productName.isCaseInsensitiveContains(key) ){
-          productList.add(product); }
-      });
-    });
-    productList.forEach((element) { print(element.productName);});
-
+  void filter(String search, String name, {bool? hasorder}) {
+    if (name == 'Product') {
+      productFilterByName(search, hasorder);
+    }
+    else if (name == 'Category') {
+      productFilterByCategory(search, hasorder);
+    }
   }
 
-  void sortlisByPrice(List list){
-
-    productList=[];
+  void sortlisByName(List list) {
+    productList = [];
     list.forEach((key) {
       filterproductList.forEach((product) {
-        if(product.salePrice.compareTo(key)==0 ){
+        if (product.productName.isCaseInsensitiveContains(key)) {
           productList.add(product);
         }
       });
     });
-    productList.forEach((element) { print(element.productName);});
-
+    productList.forEach((element) {
+      print(element.productName);
+    });
   }
-  void shorted(String order){
-    if(productList.isEmpty){
-      productList=filterproductList;
+
+  void sortlisByPrice(List list) {
+    productList = [];
+    list.forEach((key) {
+      filterproductList.forEach((product) {
+        if (product.salePrice.compareTo(key) == 0) {
+          productList.add(product);
+        }
+      });
+    });
+    productList.forEach((element) {
+      print(element.productName);
+    });
+  }
+
+  void shorted(String order) {
+    if (productList.isEmpty) {
+      productList = filterproductList;
     }
-    if(productList.isNotEmpty){
-      filterproductList=productList;
+    if (productList.isNotEmpty) {
+      filterproductList = productList;
     }
-    list1=List.generate(productList.length, (index) => productList[index].productName);
-    list2=List.generate(productList.length, (index) => productList[index].salePrice);
-    Order=order;
-    if(order=='Ascending'){
+    list1 = List.generate(
+        productList.length, (index) => productList[index].productName);
+    list2 = List.generate(
+        productList.length, (index) => productList[index].salePrice);
+    Order = order;
+    if (order == 'Ascending') {
       list1.sort((a, b) => a.compareTo(b));
       sortlisByName(list1);
-
-    }else if(order=='Descending')
-    {
+    } else if (order == 'Descending') {
       list1.sort((b, a) => a.compareTo(b));
       sortlisByName(list1);
-    }else if(order=='Price Ascending')
-    {
+    } else if (order == 'Price Ascending') {
       list2.sort((a, b) => a.compareTo(b));
       sortlisByPrice(list2);
-    }else if(order=='Price Descending')
-    {
+    } else if (order == 'Price Descending') {
       list2.sort((b, a) => a.compareTo(b));
       sortlisByPrice(list2);
     }
@@ -180,7 +187,7 @@ class ProductProvider extends ChangeNotifier {
   getAllCategories() {
     DbHelper.getAllCategories().listen((snapshot) {
       categoryList = List.generate(snapshot.docs.length,
-          (index) => CategoryModel.fromMap(snapshot.docs[index].data()));
+              (index) => CategoryModel.fromMap(snapshot.docs[index].data()));
       categoryList.sort((model1, model2) =>
           model1.categoryName.compareTo(model2.categoryName));
       notifyListeners();
@@ -195,7 +202,9 @@ class ProductProvider extends ChangeNotifier {
   }
 
   Future<ImageModel> uploadImage(String path) async {
-    final imageName = 'pro_${DateTime.now().millisecondsSinceEpoch}';
+    final imageName = 'pro_${DateTime
+        .now()
+        .millisecondsSinceEpoch}';
     final imageRef = FirebaseStorage.instance
         .ref()
         .child('$firebaseStorageProductImageDir/$imageName');
@@ -212,13 +221,13 @@ class ProductProvider extends ChangeNotifier {
     return FirebaseStorage.instance.refFromURL(url).delete();
   }
 
-  Future<void> addNewProduct(
-      ProductModel productModel, PurchaseModel purchaseModel) {
+  Future<void> addNewProduct(ProductModel productModel,
+      PurchaseModel purchaseModel) {
     return DbHelper.addNewProduct(productModel, purchaseModel);
   }
 
-  Future<void> repurchase(
-      PurchaseModel purchaseModel, ProductModel productModel) {
+  Future<void> repurchase(PurchaseModel purchaseModel,
+      ProductModel productModel) {
     return DbHelper.repurchase(purchaseModel, productModel);
   }
 
@@ -226,6 +235,7 @@ class ProductProvider extends ChangeNotifier {
     final discountAmount = (price * discount) / 100;
     return price - discountAmount;
   }
+
   // comment
   Future<List<CommentModel>> getCommentsByProduct(String proId) async {
     final snapshot = await DbHelper.getCommentsByProduct(proId);
@@ -245,8 +255,34 @@ class ProductProvider extends ChangeNotifier {
     return DbHelper.addComment(commentModel);
   }
 
+// favourite
+  void getFavouriteByUser() {
+    DbHelper.getFavouriteByUser(AuthService.currentUser!.uid)
+        .listen((snapshot) {
+      favouriteList = List.generate(snapshot.docs.length,
+              (index) => FavouriteModel.fromMap(snapshot.docs[index].data()));
+      notifyListeners();
+    });
+  }
 
+  Future<void> addfavourite(String proId) {
+    final favouriteModel = FavouriteModel(
+      favouriteId: proId,
+      productId: proId,
+      favourite: true,
+    );
+    return DbHelper.addfavourite(favouriteModel);
+  }
 
+  bool isProductInfavourite(String productId) {
+    final car =
+    List.generate(favouriteList.length, (index) => favouriteList[index].productId);
+    return car.contains(productId);
+  }
+
+  Future<void> removefavourite(String pid) {
+    return DbHelper.removefavourite(AuthService.currentUser!.uid, pid);
+  }
 
 
 }
