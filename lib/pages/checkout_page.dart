@@ -31,12 +31,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String? city;
 
   @override
+  void initState() {
+    userProvider = Provider.of<UserProvider>(context, listen: false);
+    setAddressIfExists();
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
     orderProvider = Provider.of<OrderProvider>(context);
     cartProvider = Provider.of<CartProvider>(context, listen: false);
-    userProvider = Provider.of<UserProvider>(context, listen: false);
-    setAddressIfExists();
+
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    addressLine1Controller.dispose();
+    addressLine2Controller.dispose();
+    zipCodeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -50,9 +64,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
         children: [
           buildHeader('Product Info'),
           SizedBox(
-              height: cartProvider.cartList.length > 3
-                  ? MediaQuery.of(context).size.height * 0.125
-                  : MediaQuery.of(context).size.height * 0.2,
+              height: cartProvider.cartList.length > 1
+                  ? cartProvider.cartList.length > 2
+                  ? cartProvider.cartList.length > 3
+                  ? MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.228
+                  : MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.185
+                  : MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.125
+                  : MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.08,
               child: ListView(
                 children: [
                   buildProductInfoSection(),
@@ -86,11 +116,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
         padding: const EdgeInsets.all(8),
         child: Column(
           children: cartProvider.cartList
-              .map((cartModel) => ListTile(
-                    title: Text(cartModel.productName),
-                    trailing:
-                        Text('${cartModel.quantity}x${cartModel.salePrice}'),
-                  ))
+              .map((cartModel) =>
+              ListTile(
+                title: Text(cartModel.productName),
+                trailing:
+                Text('${cartModel.quantity}x${cartModel.salePrice}'),
+              ))
               .toList(),
         ),
       ),
@@ -111,17 +142,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
               title: Text(
                   'Discount(${orderProvider.orderConstantModel.discount}%)'),
               trailing: Text(
-                  '$currencySymbol${orderProvider.getDiscountAmount(cartProvider.getTotalPrice())}'),
+                  '$currencySymbol${orderProvider.getDiscountAmount(
+                      cartProvider.getTotalPrice())}'),
             ),
             ListTile(
               title: Text('VAT(${orderProvider.orderConstantModel.vat}%)'),
               trailing: Text(
-                  '$currencySymbol${orderProvider.getVatAmount(cartProvider.getTotalPrice())}'),
+                  '$currencySymbol${orderProvider.getVatAmount(
+                      cartProvider.getTotalPrice())}'),
             ),
             ListTile(
               title: const Text('Delivery Charge'),
               trailing: Text(
-                  '$currencySymbol${orderProvider.orderConstantModel.deliveryCharge}'),
+                  '$currencySymbol${orderProvider.orderConstantModel
+                      .deliveryCharge}'),
             ),
             const Divider(
               height: 2,
@@ -133,7 +167,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               trailing: Text(
-                '$currencySymbol${orderProvider.getGrandTotal(cartProvider.getTotalPrice())}',
+                '$currencySymbol${orderProvider.getGrandTotal(
+                    cartProvider.getTotalPrice())}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -150,14 +185,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
         child: Column(
           children: [
             ListTile(
-              title: Text(addressLine1Controller.text ?? 'Not set yet'),
+              title: Text(addressLine1Controller.text),
               subtitle: const Text('AddressLine 1'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () {
-                      showMapInputDialog(
+                    onPressed: () async {
+                      await showMapInputDialog(
                           context: context,
                           title: 'Select Location',
                           onSubmit: (value, map) {
@@ -166,7 +201,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 value.substring(0, value.length - 2);
                             city = map['city'];
                             zipCodeController.text = map['postcode'];
+
                           });
+                        setState(() {
+                        });
                     },
                     icon: const Icon(Icons.location_on),
                   ),
@@ -189,9 +227,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
-              title: Text(addressLine2Controller.text ?? 'Not set yet'),
+              title: Text(addressLine2Controller.text),
               subtitle: const Text('AddressLine 2'),
               trailing: IconButton(
                 onPressed: () {
@@ -210,10 +248,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
-              title: Text(userProvider.userModel!.addressModel?.zipcode ??
-                  'Not set yet'),
+              title: Text(zipCodeController.text),
               subtitle: const Text('Zip Code'),
               trailing: IconButton(
                 onPressed: () {
@@ -235,7 +272,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
               title: Text(city ?? 'Not set yet'),
               subtitle: const Text('City'),
@@ -245,7 +282,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       context: context,
                       title: 'Select City',
                       onSubmit: (value) {
-                        if (value.split(',').length == 3) {
+                        if (value
+                            .split(',')
+                            .length == 3) {
                           city = value.split(',')[2];
                         } else {
                           city = value;
@@ -275,14 +314,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    addressLine1Controller.dispose();
-    addressLine2Controller.dispose();
-    zipCodeController.dispose();
-    super.dispose();
   }
 
   Widget buildPaymentMethodSection() {

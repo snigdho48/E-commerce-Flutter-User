@@ -86,7 +86,6 @@ class CartProvider extends ChangeNotifier {
     for (final cartModel in cartList) {
       total += priceWithQuantity(cartModel);
     }
-    print(total);
     return total;
 
   }

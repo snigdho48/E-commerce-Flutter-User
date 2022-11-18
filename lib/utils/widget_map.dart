@@ -6,11 +6,11 @@ showMapInputDialog({
   required String title,
   String negativeButton = 'CLOSE',
   required Function(String,dynamic) onSubmit,
-}) {
+}) async {
   var location='';
   var locationdata={};
 
-  showDialog(
+  await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(title),
@@ -26,14 +26,17 @@ showMapInputDialog({
               // maxZoomLevel: 16,
               trackMyPosition: true,
               onError: (e) {},
-              onPicked: (pickedData) {
+              onPicked: (pickedData)  {
                 location=pickedData.address;
                 locationdata=pickedData.addressData;
                 if (location.isEmpty) return;
                 final value = location;
                 final map=locationdata;
-                onSubmit(value,map);
                 Navigator.pop(context);
+                onSubmit(value,map);
+
+
+
               })
         ),
         actions: [
