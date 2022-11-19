@@ -1,3 +1,4 @@
+import 'package:ecom_user_07/models/order_model.dart';
 import 'package:flutter/material.dart';
 
 import '../db/db_helper.dart';
@@ -5,6 +6,7 @@ import '../models/order_constant_model.dart';
 
 class OrderProvider extends ChangeNotifier {
   OrderConstantModel orderConstantModel = OrderConstantModel();
+  List<OrderModel> purchaseList=[];
 
   getOrderConstants() {
     DbHelper.getOrderConstants().listen((snapshot) {
@@ -33,5 +35,16 @@ class OrderProvider extends ChangeNotifier {
             getVatAmount(cartSubTotal) +
             orderConstantModel.deliveryCharge)
         .round();
+  }
+
+  void placeOrder(OrderModel order) => DbHelper.placeOrder(order);
+
+  getAllOrderByUser() {
+    DbHelper.getOrderByUser()
+        .listen((snapshot) {
+      purchaseList = List.generate(snapshot.docs.length,
+              (index) => OrderModel.fromMap(snapshot.docs[index].data()));
+      notifyListeners();
+    });
   }
 }

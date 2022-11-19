@@ -1,11 +1,15 @@
+import 'package:ecom_user_07/models/address_model.dart';
+import 'package:ecom_user_07/models/date_model.dart';
+import 'package:ecom_user_07/models/order_model.dart';
+import 'package:ecom_user_07/pages/view_product_page.dart';
 import 'package:ecom_user_07/providers/cart_provider.dart';
 import 'package:ecom_user_07/providers/order_provider.dart';
 import 'package:ecom_user_07/providers/user_provider.dart';
 import 'package:ecom_user_07/utils/ThemeUtils.dart';
 import 'package:ecom_user_07/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-
 import '../utils/helper_functions.dart';
 import '../utils/widget_city.dart';
 import '../utils/widget_functions.dart';
@@ -66,23 +70,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
           SizedBox(
               height: cartProvider.cartList.length > 1
                   ? cartProvider.cartList.length > 2
-                  ? cartProvider.cartList.length > 3
-                  ? MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.228
-                  : MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.185
-                  : MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.125
-                  : MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.08,
+                      ? cartProvider.cartList.length > 3
+                          ? MediaQuery.of(context).size.height * 0.228
+                          : MediaQuery.of(context).size.height * 0.185
+                      : MediaQuery.of(context).size.height * 0.125
+                  : MediaQuery.of(context).size.height * 0.08,
               child: ListView(
                 children: [
                   buildProductInfoSection(),
@@ -116,12 +108,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
         padding: const EdgeInsets.all(8),
         child: Column(
           children: cartProvider.cartList
-              .map((cartModel) =>
-              ListTile(
-                title: Text(cartModel.productName),
-                trailing:
-                Text('${cartModel.quantity}x${cartModel.salePrice}'),
-              ))
+              .map((cartModel) => ListTile(
+                    title: Text(cartModel.productName),
+                    trailing:
+                        Text('${cartModel.quantity}x${cartModel.salePrice}'),
+                  ))
               .toList(),
         ),
       ),
@@ -142,20 +133,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
               title: Text(
                   'Discount(${orderProvider.orderConstantModel.discount}%)'),
               trailing: Text(
-                  '$currencySymbol${orderProvider.getDiscountAmount(
-                      cartProvider.getTotalPrice())}'),
+                  '$currencySymbol${orderProvider.getDiscountAmount(cartProvider.getTotalPrice())}'),
             ),
             ListTile(
               title: Text('VAT(${orderProvider.orderConstantModel.vat}%)'),
               trailing: Text(
-                  '$currencySymbol${orderProvider.getVatAmount(
-                      cartProvider.getTotalPrice())}'),
+                  '$currencySymbol${orderProvider.getVatAmount(cartProvider.getTotalPrice())}'),
             ),
             ListTile(
               title: const Text('Delivery Charge'),
               trailing: Text(
-                  '$currencySymbol${orderProvider.orderConstantModel
-                      .deliveryCharge}'),
+                  '$currencySymbol${orderProvider.orderConstantModel.deliveryCharge}'),
             ),
             const Divider(
               height: 2,
@@ -167,8 +155,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               trailing: Text(
-                '$currencySymbol${orderProvider.getGrandTotal(
-                    cartProvider.getTotalPrice())}',
+                '$currencySymbol${orderProvider.getGrandTotal(cartProvider.getTotalPrice())}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -201,10 +188,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 value.substring(0, value.length - 2);
                             city = map['city'];
                             zipCodeController.text = map['postcode'];
-
                           });
-                        setState(() {
-                        });
+                      setState(() {});
                     },
                     icon: const Icon(Icons.location_on),
                   ),
@@ -227,7 +212,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
               title: Text(addressLine2Controller.text),
               subtitle: const Text('AddressLine 2'),
@@ -248,7 +233,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
               title: Text(zipCodeController.text),
               subtitle: const Text('Zip Code'),
@@ -272,7 +257,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
               title: Text(city ?? 'Not set yet'),
               subtitle: const Text('City'),
@@ -282,9 +267,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       context: context,
                       title: 'Select City',
                       onSubmit: (value) {
-                        if (value
-                            .split(',')
-                            .length == 3) {
+                        if (value.split(',').length == 3) {
                           city = value.split(',')[2];
                         } else {
                           city = value;
@@ -355,8 +338,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  void _saveOrder() {}
-
   void setAddressIfExists() {
     final userModel = userProvider.userModel;
     if (userModel != null) {
@@ -367,6 +348,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
         zipCodeController.text = address.zipcode ?? '';
         city = address.city ?? '';
       }
+    }
+  }
+
+  void _saveOrder() {
+    if (addressLine1Controller.text.isNotEmpty ||
+        addressLine2Controller.text.isNotEmpty ||
+        zipCodeController.text.isNotEmpty ||
+        city != null) {
+      final order = OrderModel(
+          orderId: generateOrderId,
+          orderStatus: PaymentStatus.pending,
+          paymentMethod: paymentMethodGroupValue,
+          grandTotal: orderProvider.getGrandTotal(cartProvider.getTotalPrice()),
+          discount: orderProvider.orderConstantModel.discount,
+          VAT: orderProvider.orderConstantModel.vat,
+          orderDate: DateModel(
+              timestamp: Timestamp.now(),
+              day: DateTime.now().day,
+              month: DateTime.now().month,
+              year: DateTime.now().year),
+          deliveryAddress: AddressModel(
+              addressLine1: addressLine1Controller.text,
+              addressLine2: addressLine2Controller.text,
+              city: city,
+              zipcode: zipCodeController.text),
+          productDetails: cartProvider.cartList);
+      orderProvider.placeOrder(order);
+      Navigator.pushReplacementNamed(context, ViewProductPage.routeName);
+    }else{
+      showMsg(context, 'Please Fill Your Address');
     }
   }
 }

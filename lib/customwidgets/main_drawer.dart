@@ -4,8 +4,9 @@ import 'package:ecom_user_07/pages/launcher_page.dart';
 import 'package:ecom_user_07/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../pages/cart_page.dart';
+import '../pages/favourite_page.dart';
+import '../pages/purchase_history.dart';
 import '../pages/user_profile_page.dart';
 import '../utils/ThemeUtils.dart';
 
@@ -79,6 +80,14 @@ class MainDrawer extends StatelessWidget {
             title: const Text('My Profile'),
           ),
           if (!AuthService.currentUser!.isAnonymous)
+            ListTile(
+              onTap: () {
+                Navigator.pushNamed(context, ViewFavoriteProductPage.routeName);
+              },
+              leading: const Icon(Icons.favorite),
+              title: const Text('My Favorite'),
+            ),
+          if (!AuthService.currentUser!.isAnonymous)
           ListTile(
             onTap: () {
               Navigator.pushNamed(context, CartPage.routeName);
@@ -88,7 +97,9 @@ class MainDrawer extends StatelessWidget {
           ),
           if (!AuthService.currentUser!.isAnonymous)
           ListTile(
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, PurchaseHistory.routeName);
+            },
             leading: const Icon(Icons.monetization_on),
             title: const Text('My Orders'),
           ),

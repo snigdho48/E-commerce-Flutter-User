@@ -1,57 +1,39 @@
-import 'package:ecom_user_07/models/favourite_model.dart';
-import 'package:ecom_user_07/providers/cart_provider.dart';
-import 'package:ecom_user_07/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../customwidgets/cart_bubble_view.dart';
 import '../customwidgets/main_drawer.dart';
 import '../customwidgets/product_grid_item_view.dart';
 import '../models/category_model.dart';
-import '../providers/order_provider.dart';
 import '../providers/product_provider.dart';
 import '../utils/constants.dart';
 
-class ViewProductPage extends StatefulWidget {
-  static const String routeName = '/viewproduct';
-  const ViewProductPage({Key? key}) : super(key: key);
+class ViewFavoriteProductPage extends StatefulWidget {
+  static const String routeName = '/favouriteproduct';
+  const ViewFavoriteProductPage({Key? key}) : super(key: key);
 
   @override
-  State<ViewProductPage> createState() => _ViewProductPageState();
+  State<ViewFavoriteProductPage> createState() => _ViewFavoriteProductPageState();
 }
 
-class _ViewProductPageState extends State<ViewProductPage> {
+class _ViewFavoriteProductPageState extends State<ViewFavoriteProductPage> {
   CategoryModel? categoryModel;
-  final txtController = TextEditingController();
   String name='Product';
   String order='None';
   bool hasorder=false;
+  late final ProductProvider productProvider;
 
-  @override
-  void dispose() {
-       txtController.dispose();
-    super.dispose();
-  }
-  @override
+@override
   void didChangeDependencies() {
-    Provider.of<ProductProvider>(context, listen: false).getAllCategories();
-    Provider.of<ProductProvider>(context, listen: false).getAllProducts();
-    Provider.of<ProductProvider>(context, listen: false).getAllPurchases();
-    Provider.of<OrderProvider>(context, listen: false).getOrderConstants();
-    Provider.of<UserProvider>(context,listen: false).getUserInfo();
-    Provider.of<CartProvider>(context,listen: false).getAllCartItemsByUser();
-    Provider.of<CartProvider>(context,listen: false).getTotalPrice();
-    Provider.of<ProductProvider>(context,listen: false).getFavouriteByUser();
-    Provider.of<OrderProvider>(context,listen: false).getAllOrderByUser();
-
+    productProvider=Provider.of<ProductProvider>(context,listen: false);
     super.didChangeDependencies();
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const MainDrawer(),
       appBar: AppBar(
-        title: const Text('All Product'),
+        title: const Text('All Favorite Product'),
         actions: const [
           CartBubbleView(),
         ],
@@ -68,24 +50,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                       SizedBox(
-                        width:MediaQuery.of(context).size.width*.57,
-                        child: TextField(
-                          controller: txtController,
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            hintText: 'Enter $name',
-
-                          ),
-
-                          onChanged: (value){
-                            provider.filter(txtController.text,name,hasorder: hasorder);
-                          },
-                        ),
-                      ),
                       const SizedBox(width: 15,),
                       SizedBox(
-                        width:MediaQuery.of(context).size.width*.18,
+                        width:MediaQuery.of(context).size.width*.4,
                         child: DropdownButtonFormField<String>(
                           // style: const TextStyle(fontSize: 15,),
                           isExpanded: true,
@@ -100,9 +67,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
                           items: List.generate(
                               choice.length,
                                   (index) => DropdownMenuItem(
-                                         value: choice[index],
-                                         child: Text(choice[index])
-                                  )
+                                  value: choice[index],
+                                  child: Text(choice[index])
+                              )
                           ),
 
                           onChanged: (value) {
@@ -115,7 +82,7 @@ class _ViewProductPageState extends State<ViewProductPage> {
                       ),
                       const SizedBox(width: 10,),
                       SizedBox(
-                        width:MediaQuery.of(context).size.width*.17,
+                        width:MediaQuery.of(context).size.width*.4,
                         child: DropdownButtonFormField<String>(
                           // style: Theme.of(context).textTheme.displaySmall,
                           isExpanded: true,
@@ -153,9 +120,9 @@ class _ViewProductPageState extends State<ViewProductPage> {
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2, childAspectRatio: 0.65),
-                itemCount: ProductProvider.productList.length,
+                itemCount: productProvider.favouriteProductList.length,
                 itemBuilder: (context, index) {
-                  final product = ProductProvider.productList[index];
+                  final product = productProvider.favouriteProductList[index];
                   return ProductGridItemView(
                     productModel: product,
                   );

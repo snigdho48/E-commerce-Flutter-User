@@ -19,6 +19,7 @@ import '../utils/helper_functions.dart';
 class ProductProvider extends ChangeNotifier {
   List<CategoryModel> categoryList = [];
   List<FavouriteModel> favouriteList = [];
+  List<ProductModel> favouriteProductList = [];
   static List<ProductModel> productList = [];
   List<ProductModel> filterproductList = [];
   List<PurchaseModel> purchaseList = [];
@@ -261,6 +262,13 @@ class ProductProvider extends ChangeNotifier {
         .listen((snapshot) {
       favouriteList = List.generate(snapshot.docs.length,
               (index) => FavouriteModel.fromMap(snapshot.docs[index].data()));
+      final favouriteListid=List.generate(favouriteList.length, (index) => favouriteList[index].productId);
+      favouriteProductList=[];
+      productList.forEach((element) {
+         if(favouriteListid.contains(element.productId)){
+           favouriteProductList.add(element);
+         }
+      });
       notifyListeners();
     });
   }

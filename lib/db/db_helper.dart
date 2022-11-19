@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecom_user_07/auth/auth_service.dart';
+import 'package:ecom_user_07/models/order_model.dart';
 import 'package:ecom_user_07/models/user_model.dart';
+import 'package:ecom_user_07/providers/cart_provider.dart';
 
 import '../models/cart_model.dart';
 import '../models/category_model.dart';
@@ -233,6 +235,25 @@ class DbHelper {
         .collection(collectionFavourite)
         .doc(pid)
         .delete();
+  }
+//Order
+  static placeOrder(OrderModel order) {
+    return _db
+        .collection(collectionUser)
+        .doc(AuthService.currentUser!.uid)
+        .collection(collectionOrder)
+        .doc(order.orderId)
+        .set(order.toMap()).then((value) =>
+        clearCart(AuthService.currentUser!.uid, order.productDetails),
+    );
+  }
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getOrderByUser() {
+    final info = _db
+        .collection(collectionUser)
+        .doc(AuthService.currentUser!.uid)
+        .collection(collectionOrder)
+        .snapshots();
+    return info;
   }
 
 }

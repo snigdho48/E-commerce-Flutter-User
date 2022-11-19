@@ -1,10 +1,12 @@
 import 'package:ecom_user_07/pages/cart_page.dart';
 import 'package:ecom_user_07/pages/checkout_page.dart';
+import 'package:ecom_user_07/pages/favourite_page.dart';
 import 'package:ecom_user_07/pages/launcher_page.dart';
 import 'package:ecom_user_07/pages/login_page.dart';
 import 'package:ecom_user_07/pages/order_page.dart';
 import 'package:ecom_user_07/pages/otp_verification_page.dart';
 import 'package:ecom_user_07/pages/product_details_page.dart';
+import 'package:ecom_user_07/pages/purchase_history.dart';
 import 'package:ecom_user_07/providers/cart_provider.dart';
 import 'package:ecom_user_07/providers/product_provider.dart';
 import 'package:ecom_user_07/providers/user_provider.dart';
@@ -56,6 +58,8 @@ class MyApp extends StatelessWidget {
         OtpVerificationPage.routeName: (_) => const OtpVerificationPage(),
         CartPage.routeName: (_) => const CartPage(),
         CheckoutPage.routeName: (_) => const CheckoutPage(),
+        PurchaseHistory.routeName: (_) => const PurchaseHistory(),
+        ViewFavoriteProductPage.routeName: (_) => const ViewFavoriteProductPage(),
 
       },
     );

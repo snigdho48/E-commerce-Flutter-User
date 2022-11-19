@@ -5,7 +5,6 @@ import 'date_model.dart';
 const String collectionOrder = 'Order';
 
 const String orderFieldOrderId = 'orderId';
-const String orderFieldUserId = 'userId';
 const String orderFieldGrandTotal = 'grandTotal';
 const String orderFieldDiscount = 'discount';
 const String orderFieldVAT = 'VAT';
@@ -17,7 +16,6 @@ const String orderFieldProductDetails = 'productDetails';
 
 class OrderModel {
   String orderId;
-  String userId;
   String orderStatus;
   String paymentMethod;
   num grandTotal;
@@ -29,7 +27,6 @@ class OrderModel {
 
   OrderModel(
       {required this.orderId,
-      required this.userId,
       required this.orderStatus,
       required this.paymentMethod,
       required this.grandTotal,
@@ -42,7 +39,6 @@ class OrderModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       orderFieldOrderId: orderId,
-      orderFieldUserId: userId,
       orderFieldOrderStatus: orderStatus,
       orderFieldPaymentMethod: paymentMethod,
       orderFieldGrandTotal: grandTotal,
@@ -57,7 +53,6 @@ class OrderModel {
 
   factory OrderModel.fromMap(Map<String, dynamic> map) => OrderModel(
         orderId: map[orderFieldOrderId],
-        userId: map[orderFieldUserId],
         orderStatus: map[orderFieldOrderStatus],
         paymentMethod: map[orderFieldPaymentMethod],
         grandTotal: map[orderFieldGrandTotal],
