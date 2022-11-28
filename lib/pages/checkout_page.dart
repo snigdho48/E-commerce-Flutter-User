@@ -1,16 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecom_user_07/auth/auth_service.dart';
 import 'package:ecom_user_07/models/address_model.dart';
 import 'package:ecom_user_07/models/date_model.dart';
 import 'package:ecom_user_07/models/order_model.dart';
+import 'package:ecom_user_07/pages/order_successful_page.dart';
 import 'package:ecom_user_07/pages/view_product_page.dart';
 import 'package:ecom_user_07/providers/cart_provider.dart';
 import 'package:ecom_user_07/providers/order_provider.dart';
 import 'package:ecom_user_07/providers/user_provider.dart';
-import 'package:ecom_user_07/utils/ThemeUtils.dart';
 import 'package:ecom_user_07/utils/constants.dart';
+import 'package:ecom_user_07/utils/helper_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
-import '../utils/helper_functions.dart';
+import '../models/notification_model.dart';
+import '../utils/ThemeUtils.dart';
 import '../utils/widget_city.dart';
 import '../utils/widget_functions.dart';
 import '../utils/widget_map.dart';
@@ -35,26 +39,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String? city;
 
   @override
-  void initState() {
-    userProvider = Provider.of<UserProvider>(context, listen: false);
-    setAddressIfExists();
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     orderProvider = Provider.of<OrderProvider>(context);
     cartProvider = Provider.of<CartProvider>(context, listen: false);
-
+    userProvider = Provider.of<UserProvider>(context, listen: false);
+    setAddressIfExists();
     super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    addressLine1Controller.dispose();
-    addressLine2Controller.dispose();
-    zipCodeController.dispose();
-    super.dispose();
   }
 
   @override
@@ -67,19 +57,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         padding: const EdgeInsets.all(9),
         children: [
           buildHeader('Product Info'),
-          SizedBox(
-              height: cartProvider.cartList.length > 1
-                  ? cartProvider.cartList.length > 2
-                      ? cartProvider.cartList.length > 3
-                          ? MediaQuery.of(context).size.height * 0.228
-                          : MediaQuery.of(context).size.height * 0.185
-                      : MediaQuery.of(context).size.height * 0.125
-                  : MediaQuery.of(context).size.height * 0.08,
-              child: ListView(
-                children: [
-                  buildProductInfoSection(),
-                ],
-              )),
+          buildProductInfoSection(),
           buildHeader('Order Summery'),
           buildOrderSummerySection(),
           buildHeader('Delivery Address'),
@@ -127,7 +105,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
           children: [
             ListTile(
               title: const Text('Sub-total'),
-              trailing: Text('$currencySymbol${cartProvider.getTotalPrice()}'),
+              trailing:
+                  Text('$currencySymbol${cartProvider.getTotalPrice()}'),
             ),
             ListTile(
               title: Text(
@@ -212,7 +191,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
               title: Text(addressLine2Controller.text),
               subtitle: const Text('AddressLine 2'),
@@ -233,7 +212,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
               title: Text(zipCodeController.text),
               subtitle: const Text('Zip Code'),
@@ -257,7 +236,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 height: 2,
                 thickness: 1,
                 color:
-                    ThemeServices().loadTheme() ? Colors.white : Colors.black),
+                ThemeServices().loadTheme() ? Colors.white : Colors.black),
             ListTile(
               title: Text(city ?? 'Not set yet'),
               subtitle: const Text('City'),
@@ -297,6 +276,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       ),
     );
+  }
+  @override
+  void dispose() {
+    addressLine1Controller.dispose();
+    addressLine2Controller.dispose();
+    zipCodeController.dispose();
+    super.dispose();
   }
 
   Widget buildPaymentMethodSection() {
@@ -338,46 +324,76 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  void _saveOrder() async {
+    if (addressLine1Controller.text.isEmpty) {
+      showMsg(context, 'Please provide address line 1');
+      return;
+    }
+
+    if (zipCodeController.text.isEmpty) {
+      showMsg(context, 'Please provide zipcode');
+      return;
+    }
+
+    if (city == null) {
+      showMsg(context, 'Please select your city');
+      return;
+    }
+
+    EasyLoading.show(status: 'Please wait');
+
+    final orderModel = OrderModel(
+      orderId: generateOrderId,
+      userId: AuthService.currentUser!.uid,
+      orderStatus: OrderStatus.pending,
+      paymentMethod: paymentMethodGroupValue,
+      grandTotal: orderProvider.getGrandTotal(cartProvider.getTotalPrice()),
+      discount: orderProvider.orderConstantModel.discount,
+      VAT: orderProvider.orderConstantModel.vat,
+      deliveryCharge: orderProvider.orderConstantModel.deliveryCharge,
+      orderDate: DateModel(
+        timestamp: Timestamp.fromDate(DateTime.now()),
+        day: DateTime.now().day,
+        month: DateTime.now().month,
+        year: DateTime.now().year,
+      ),
+      deliveryAddress: AddressModel(
+        addressLine1: addressLine1Controller.text,
+        addressLine2: addressLine2Controller.text,
+        zipcode: zipCodeController.text,
+        city: city,
+      ),
+      productDetails: cartProvider.cartList,
+    );
+
+    try {
+      await orderProvider.saveOrder(orderModel);
+      final notification = NotificationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: NotificationType.order,
+        message: 'You have a new order #${orderModel.orderId}',
+        orderModel: orderModel,
+      );
+      await orderProvider.addNotification(notification);
+      EasyLoading.dismiss();
+      Navigator.pushNamedAndRemoveUntil(context, OrderSuccessfulPage.routeName,
+          ModalRoute.withName(ViewProductPage.routeName));
+    } catch (error) {
+      EasyLoading.dismiss();
+      showMsg(context, 'Failed to save order');
+    }
+  }
+
   void setAddressIfExists() {
     final userModel = userProvider.userModel;
     if (userModel != null) {
       if (userModel.addressModel != null) {
         final address = userModel.addressModel!;
-        addressLine1Controller.text = address.addressLine1 ?? '';
-        addressLine2Controller.text = address.addressLine2 ?? '';
-        zipCodeController.text = address.zipcode ?? '';
-        city = address.city ?? '';
+        addressLine1Controller.text = address.addressLine1==null?'':address.addressLine1!;
+        addressLine2Controller.text = address.addressLine2 == null ?'':address.addressLine2!;
+        zipCodeController.text = address.zipcode==null?'':address.zipcode!;
+        city = address.city??address.city;
       }
-    }
-  }
-
-  void _saveOrder() {
-    if (addressLine1Controller.text.isNotEmpty ||
-        addressLine2Controller.text.isNotEmpty ||
-        zipCodeController.text.isNotEmpty ||
-        city != null) {
-      final order = OrderModel(
-          orderId: generateOrderId,
-          orderStatus: PaymentStatus.pending,
-          paymentMethod: paymentMethodGroupValue,
-          grandTotal: orderProvider.getGrandTotal(cartProvider.getTotalPrice()),
-          discount: orderProvider.orderConstantModel.discount,
-          VAT: orderProvider.orderConstantModel.vat,
-          orderDate: DateModel(
-              timestamp: Timestamp.now(),
-              day: DateTime.now().day,
-              month: DateTime.now().month,
-              year: DateTime.now().year),
-          deliveryAddress: AddressModel(
-              addressLine1: addressLine1Controller.text,
-              addressLine2: addressLine2Controller.text,
-              city: city,
-              zipcode: zipCodeController.text),
-          productDetails: cartProvider.cartList);
-      orderProvider.placeOrder(order);
-      Navigator.pushReplacementNamed(context, ViewProductPage.routeName);
-    }else{
-      showMsg(context, 'Please Fill Your Address');
     }
   }
 }

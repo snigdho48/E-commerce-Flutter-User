@@ -2,6 +2,7 @@ import 'package:ecom_user_07/models/order_model.dart';
 import 'package:flutter/material.dart';
 
 import '../db/db_helper.dart';
+import '../models/notification_model.dart';
 import '../models/order_constant_model.dart';
 
 class OrderProvider extends ChangeNotifier {
@@ -37,7 +38,6 @@ class OrderProvider extends ChangeNotifier {
         .round();
   }
 
-  void placeOrder(OrderModel order) => DbHelper.placeOrder(order);
 
   getAllOrderByUser() {
     DbHelper.getOrderByUser()
@@ -47,4 +47,13 @@ class OrderProvider extends ChangeNotifier {
       notifyListeners();
     });
   }
+  Future<void> saveOrder(OrderModel orderModel) async {
+    await DbHelper.saveOrder(orderModel);
+    return DbHelper.clearCart(orderModel.userId, orderModel.productDetails);
+  }
+
+  Future<void> addNotification(NotificationModel notification) {
+    return DbHelper.addNotification(notification);
+  }
 }
+

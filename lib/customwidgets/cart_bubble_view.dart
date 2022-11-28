@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,9 +13,9 @@ class CartBubbleView extends StatelessWidget {
       onTap: () => Navigator.pushNamed(context, CartPage.routeName),
       child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: const Icon(
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Icon(
               Icons.shopping_cart,
               size: 30,
             ),
@@ -29,7 +28,7 @@ class CartBubbleView extends StatelessWidget {
               alignment: Alignment.center,
               width: 20,
               height: 20,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.red,
                 shape: BoxShape.circle,
               ),

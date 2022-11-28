@@ -1,4 +1,5 @@
 const String collectionCart = 'Cart';
+
 const String cartFieldProductId = 'productId';
 const String cartFieldProductName = 'productName';
 const String cartFieldProductImageUrl = 'productImageUrl';

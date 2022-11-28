@@ -8,6 +8,7 @@ import '../models/cart_model.dart';
 import '../models/category_model.dart';
 import '../models/comment_model.dart';
 import '../models/favourite_model.dart';
+import '../models/notification_model.dart';
 import '../models/order_constant_model.dart';
 import '../models/product_model.dart';
 import '../models/purchase_model.dart';
@@ -237,16 +238,7 @@ class DbHelper {
         .delete();
   }
 //Order
-  static placeOrder(OrderModel order) {
-    return _db
-        .collection(collectionUser)
-        .doc(AuthService.currentUser!.uid)
-        .collection(collectionOrder)
-        .doc(order.orderId)
-        .set(order.toMap()).then((value) =>
-        clearCart(AuthService.currentUser!.uid, order.productDetails),
-    );
-  }
+
   static Stream<QuerySnapshot<Map<String, dynamic>>> getOrderByUser() {
     final info = _db
         .collection(collectionUser)
@@ -254,6 +246,43 @@ class DbHelper {
         .collection(collectionOrder)
         .snapshots();
     return info;
+  }
+
+  static Future<void> saveOrder(OrderModel orderModel) async {
+    final wb = _db.batch();
+    final orderDoc = _db.collection(collectionOrder).doc(orderModel.orderId);
+    wb.set(orderDoc, orderModel.toMap());
+    for (final cartModel in orderModel.productDetails) {
+      final proSnapshot = await _db
+          .collection(collectionProduct)
+          .doc(cartModel.productId)
+          .get();
+      final productModel = ProductModel.fromMap(proSnapshot.data()!);
+      final catSnapshot = await _db
+          .collection(collectionCategory)
+          .doc(productModel.category.categoryId)
+          .get();
+      final categoryModel = CategoryModel.fromMap(catSnapshot.data()!);
+      final newStock = productModel.stock - cartModel.quantity;
+      final newProductCountInCategory =
+          categoryModel.productCount - cartModel.quantity;
+      final proDoc = _db.collection(collectionProduct).doc(cartModel.productId);
+      final catDoc = _db
+          .collection(collectionCategory)
+          .doc(productModel.category.categoryId);
+      wb.update(proDoc, {productFieldStock: newStock});
+      wb.update(catDoc, {categoryFieldProductCount: newProductCountInCategory});
+    }
+    final userDoc = _db.collection(collectionUser).doc(orderModel.userId);
+    wb.update(
+        userDoc, {userFieldAddressModel: orderModel.deliveryAddress.toMap()});
+    return wb.commit();
+  }
+
+  static Future<void> addNotification(NotificationModel notification) {
+    return _db.collection(collectionNotification)
+        .doc(notification.id)
+        .set(notification.toMap());
   }
 
 }
