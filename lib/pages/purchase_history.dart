@@ -1,39 +1,62 @@
-import 'package:ecom_user_07/providers/order_provider.dart';
-import 'package:ecom_user_07/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class PurchaseHistory extends StatelessWidget {
-  static const String routeName = '/purchase_history';
+import '../providers/order_provider.dart';
+import '../utils/constants.dart';
+import '../utils/helper_functions.dart';
 
+class PurchaseHistory extends StatefulWidget {
+  static const String routeName = '/order';
   const PurchaseHistory({Key? key}) : super(key: key);
 
   @override
+  State<PurchaseHistory> createState() => _PurchaseHistory();
+}
+
+class _PurchaseHistory extends State<PurchaseHistory> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Purchase History'),
-        ),
-        body: Consumer<OrderProvider>(
+      appBar: AppBar(
+        title: const Text('Orders'),
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          child: Consumer<OrderProvider>(
             builder: (context, provider, child) {
-              final purchaselist = provider.purchaseList;
-              return ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: purchaselist.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final purchaseItem=purchaselist[index];
-                    return InkWell(
-                      onTap: (){
-                      },
-                      child: ListTile(
-                        title: Text(purchaseItem.orderId),
-                        subtitle:Text('Order date: ${purchaseItem.orderDate.day}/${purchaseItem.orderDate.month}/${purchaseItem.orderDate.year}') ,
-                        trailing: Text('$currencySymbol ${purchaseItem.grandTotal.toString()}'),
-                      ),
-                    );
-                  }
+              final itemList = provider.orderItemList;
+              return ExpansionPanelList(
+                expansionCallback: (index, isExpanded) {
+                  setState(() {
+                    itemList[index].isExpanded = !isExpanded;
+                  });
+                },
+                children: itemList
+                    .map<ExpansionPanel>((item) => ExpansionPanel(
+                  isExpanded: item.isExpanded,
+                  headerBuilder: (context, isExpanded) => ListTile(
+                    title: Text(item.orderModel.orderId),
+                    subtitle: Text(item.orderModel.orderStatus),
+                    trailing: Text(
+                        '$currencySymbol${item.orderModel.grandTotal}'),
+                  ),
+                  body: Column(
+                    children:
+                    item.orderModel.productDetails.map((cartModel) {
+                      return ListTile(
+                        title: Text(cartModel.productName),
+                        trailing: Text(
+                            '${cartModel.quantity}x${cartModel.salePrice}'),
+                      );
+                    }).toList(),
+                  ),
+                ))
+                    .toList(),
               );
-            }
-        ));
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

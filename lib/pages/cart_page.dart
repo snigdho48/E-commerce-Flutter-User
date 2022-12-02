@@ -36,6 +36,7 @@ class CartPage extends StatelessWidget {
                 itemCount: provider.cartList.length,
                 itemBuilder: (context, index) {
                   final cartModel = provider.cartList[index];
+                  print(cartModel.quantity);
                   return cartModel.quantity==0?
                   Column(
                     mainAxisSize: MainAxisSize.min,
@@ -51,7 +52,7 @@ class CartPage extends StatelessWidget {
                           height: 120,
                           color: (ThemeServices().loadTheme()? Colors.black54:Colors.white54),
                           child: Text(
-                            '% OFF',
+                            ' Product Not Available',
                             style: TextStyle(fontSize: 25, color:(ThemeServices().loadTheme()? Colors.white:Colors.black)),
                           ),
                         ),

@@ -72,6 +72,7 @@ class DbHelper {
   static Stream<DocumentSnapshot<Map<String, dynamic>>> getOrderConstants() =>
       _db.collection(collectionUtils).doc(documentOrderConstants).snapshots();
 
+
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllCategories() =>
       _db.collection(collectionCategory).snapshots();
 
@@ -169,13 +170,12 @@ class DbHelper {
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getCartItemsByUser(
       String uid) {
-    final info = _db
+   return _db
         .collection(collectionUser)
         .doc(uid)
         .collection(collectionCart)
         .snapshots();
-    print('cart ${info.length}');
-    return info;
+
   }
 
 
@@ -239,14 +239,12 @@ class DbHelper {
   }
 //Order
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getOrderByUser() {
-    final info = _db
-        .collection(collectionUser)
-        .doc(AuthService.currentUser!.uid)
-        .collection(collectionOrder)
-        .snapshots();
-    return info;
-  }
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getOrdersByUser(
+      String uid) =>
+      _db
+          .collection(collectionOrder)
+          .where(orderFieldUserId, isEqualTo: uid)
+          .snapshots();
 
   static Future<void> saveOrder(OrderModel orderModel) async {
     final wb = _db.batch();

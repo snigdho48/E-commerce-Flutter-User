@@ -75,7 +75,6 @@ class _CartWidgetState extends State<CartWidget> {
                           if(widget.cartModel.quantity>1){
                             widget.provider.updateCart(widget.cartModel, false);
                             widget.provider.getTotalPrice();
-
                           }
                         });
 

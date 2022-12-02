@@ -7,6 +7,7 @@ import '../utils/helper_functions.dart';
 
 class CartProvider extends ChangeNotifier {
   List<CartModel> cartList = [];
+  List<CartModel> savingcartList = [];
 
   getAllCartItemsByUser() {
     DbHelper.getCartItemsByUser(AuthService.currentUser!.uid)
@@ -39,6 +40,7 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> removeFromCart(String pid) {
+    cartList.removeWhere((element) => element.productId==pid);
     return DbHelper.removeFromCart(AuthService.currentUser!.uid, pid);
   }
 
@@ -87,10 +89,11 @@ class CartProvider extends ChangeNotifier {
       total += priceWithQuantity(cartModel);
     }
     return total;
-
   }
 
-  Future<void> clearCart() {
-    return DbHelper.clearCart(AuthService.currentUser!.uid, cartList);
+  Future<void> clearCart() async {
+    await DbHelper.clearCart(AuthService.currentUser!.uid, cartList);
+    cartList=[];
+
   }
 }

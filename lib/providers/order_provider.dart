@@ -1,13 +1,25 @@
 import 'package:ecom_user_07/models/order_model.dart';
 import 'package:flutter/material.dart';
-
+import '../auth/auth_service.dart';
 import '../db/db_helper.dart';
 import '../models/notification_model.dart';
 import '../models/order_constant_model.dart';
+import '../models/order_item.dart';
 
 class OrderProvider extends ChangeNotifier {
   OrderConstantModel orderConstantModel = OrderConstantModel();
-  List<OrderModel> purchaseList=[];
+  List<OrderModel> orderList = [];
+  List<OrderItem> orderItemList = [];
+
+  getAllOrderByUser() {
+    DbHelper.getOrdersByUser(AuthService.currentUser!.uid).listen((snapshot) {
+      orderList = List.generate(snapshot.docs.length,
+              (index) => OrderModel.fromMap(snapshot.docs[index].data()));
+      orderItemList =
+          orderList.map((order) => OrderItem(orderModel: order)).toList();
+      notifyListeners();
+    });
+  }
 
   getOrderConstants() {
     DbHelper.getOrderConstants().listen((snapshot) {
@@ -39,17 +51,11 @@ class OrderProvider extends ChangeNotifier {
   }
 
 
-  getAllOrderByUser() {
-    DbHelper.getOrderByUser()
-        .listen((snapshot) {
-      purchaseList = List.generate(snapshot.docs.length,
-              (index) => OrderModel.fromMap(snapshot.docs[index].data()));
-      notifyListeners();
-    });
-  }
+
   Future<void> saveOrder(OrderModel orderModel) async {
     await DbHelper.saveOrder(orderModel);
-    return DbHelper.clearCart(orderModel.userId, orderModel.productDetails);
+    await DbHelper.clearCart(AuthService.currentUser!.uid, orderModel.productDetails);
+
   }
 
   Future<void> addNotification(NotificationModel notification) {

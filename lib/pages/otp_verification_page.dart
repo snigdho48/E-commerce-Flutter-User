@@ -157,36 +157,47 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     EasyLoading.dismiss();
   }
   Future<void> _verify() async {
+    bool varified=false;
+    late final AuthCredential Acredential;
     try{
-      User user=FirebaseAuth.instance.currentUser!;
+      // User user=FirebaseAuth.instance.currentUser!;
       PhoneAuthCredential credential =
       PhoneAuthProvider.credential(verificationId: vid, smsCode: incomingOtp);
-      FirebaseAuth.instance.signInWithCredential(credential).then((value)
-      {
-        FirebaseAuth.instance.currentUser!.delete();
-        final AuthCredential credential=AuthCredential(
+      await FirebaseAuth.instance.signInWithCredential(credential).then((value)
+      async {
+        varified=true;
+        await FirebaseAuth.instance.currentUser!.delete();
+        Acredential=AuthCredential(
             providerId: AuthService.oAuthCredential!.providerId,
             accessToken: AuthService.oAuthCredential!.accessToken,
             signInMethod: AuthService.oAuthCredential!.signInMethod,
 
         );
-        FirebaseAuth.instance.signInWithCredential(credential).then((value) async =>
-        await Future.delayed(Duration(seconds: 2))
-      );
-        print('success');
+        print(Acredential.toString());
+
         // if(user.runtimeType== 'User'){
         //    FirebaseAuth.instance.signInWithCredential(user.cr);
         // }
-        // FirebaseAuth.instance.currentUser!=user;
-        print(FirebaseAuth.instance.currentUser!.displayName);
-        // Provider.of<UserProvider>(context,listen: false).updateUserProfileField(userFieldPhone, phone);
-        Navigator.pop(context);
 
+         try {
+           FirebaseAuth.instance.signInWithCredential(Acredential);
+           // FirebaseAuth.instance.currentUser!=user;
+           print(FirebaseAuth.instance.currentUser!.displayName);
+           print('sign in');
+          final map={
+            'varified':varified,
+            'phone':phone,
+
+          };
+          Navigator.pop(context,map);
+        }catch(error){
+          print('error: ${error.toString()}');
+        }
       }
-      );
 
+      );
     }catch(e){
-      print(e);
+      print(e.toString());
     }
 
 

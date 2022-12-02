@@ -13,6 +13,7 @@ import 'package:ecom_user_07/utils/helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
+import '../models/cart_model.dart';
 import '../models/notification_model.dart';
 import '../utils/ThemeUtils.dart';
 import '../utils/widget_city.dart';
@@ -37,13 +38,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final zipCodeController = TextEditingController();
   String paymentMethodGroupValue = PaymentMethod.cod;
   String? city;
+  List<CartModel> savingcartList = [];
 
   @override
   void didChangeDependencies() {
     orderProvider = Provider.of<OrderProvider>(context);
+    Provider.of<CartProvider>(context).getProductInfoUpdate;
     cartProvider = Provider.of<CartProvider>(context, listen: false);
     userProvider = Provider.of<UserProvider>(context, listen: false);
     setAddressIfExists();
+    savingcartList=cartProvider.cartList;
+    savingcartList.removeWhere((element) => element.quantity==0);
     super.didChangeDependencies();
   }
 
@@ -85,8 +90,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
-          children: cartProvider.cartList
-              .map((cartModel) => ListTile(
+          children: savingcartList
+              .map((cartModel) =>
+              ListTile(
                     title: Text(cartModel.productName),
                     trailing:
                         Text('${cartModel.quantity}x${cartModel.salePrice}'),
@@ -363,7 +369,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         zipcode: zipCodeController.text,
         city: city,
       ),
-      productDetails: cartProvider.cartList,
+      productDetails: savingcartList,
     );
 
     try {
